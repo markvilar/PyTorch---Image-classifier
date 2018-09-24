@@ -14,13 +14,13 @@ class img_classifier(nn.Module):
     optimizer:          nn.Module
     hidden_sizes:       list of ints
     output_size:        int
-    class_to_idx:       dict {str: int}
-    feature_net:     str
+    cat_to_idx:       dict {str: int}
+    feature_net:        str
     dropout_prob:       float
     learn_rate:         float
     criterion:          nn.Module
     '''
-    def __init__(self, hidden_sizes, output_size, class_to_idx, feature_net,
+    def __init__(self, hidden_sizes, output_size, cat_to_idx, feature_net,
                  dropout_prob, learn_rate):
         super().__init__()
 
@@ -54,7 +54,7 @@ class img_classifier(nn.Module):
 
         self.hidden_sizes = hidden_sizes
         self.output_size = output_size
-        self.class_to_idx = class_to_idx
+        self.cat_to_idx = cat_to_idx
         self.feature_net = feature_net
         self.dropout_prob = dropout_prob
         self.learn_rate = learn_rate
@@ -105,24 +105,27 @@ def save_classifier(classifier, path):
                   'optimizer_state_dict' : classifier.optimizer.state_dict(),
                   'hidden_sizes' : classifier.hidden_sizes,
                   'output_size' : classifier.output_size,
-                  'class_to_idx' : classifier.class_to_idx,
+                  'cat_to_idx' : classifier.cat_to_idx,
                   'feature_net' : classifier.feature_net,
                   'dropout_prob' : classifier.dropout_prob,
                   'learn_rate' : classifier.learn_rate}
-    torch.save(checkpoint, path)
     print("Saving classifier to {}".format(path))
+    torch.save(checkpoint, path)
+    print("Classifier saved successfully!")
+
+
 
 
 def load_classifier(path):
     checkpoint = torch.load(path)
     print("Loading classifier from {} ...".format(path))
-    img_classifier = img_classifier(checkpoint['hidden_sizes'],
+    classifier = img_classifier(checkpoint['hidden_sizes'],
                                     checkpoint['output_size'],
-                                    checkpoint['class_to_idx'],
+                                    checkpoint['cat_to_idx'],
                                     checkpoint['feature_net'],
                                     checkpoint['dropout_prob'],
                                     checkpoint['learn_rate'])
-    img_classifier.model.load_state_dict(checkpoint['model_state_dict'])
-    img_classifier.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    classifier.model.load_state_dict(checkpoint['model_state_dict'])
+    classifier.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     print("Classifier loaded successfully!")
-    return img_classifier
+    return classifier

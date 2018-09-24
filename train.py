@@ -150,50 +150,38 @@ def test_classifier(classifier, dataloaders, device):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-feature_net', type=str, default='vgg',
+    parser.add_argument('-cnn', type=str, default='vgg',
                         choices=['vgg', 'resnet', 'densenet'],
-                        help='The feature detector network (CNN)')
-    parser.add_argument('-hidden_sizes', type=int, nargs='+',
-                        default=[512, 256, 128],
-                        help='Number of neurons in the hidden layers')
-    parser.add_argument('-learn_rate', type=float, default=1e-3,
-                        help='Learning rate')
-    parser.add_argument('-dropout_prob', type=float, default=0.2,
-                        help='Dropout probability')
-    parser.add_argument('-data_dir', type=str,
-                        help='Data directory')
+                        help='The feature network (CNN)')
+    parser.add_argument('-hidden', type=int, nargs='+', default=[512,256,128],
+                        help='Hidden layer sizes')
+    parser.add_argument('-lr', type=float, default=1e-3, help='Learning rate')
+    parser.add_argument('-dp', type=float, default=0.2, help='Dropout prob.')
+    parser.add_argument('-dir', type=str, help='Data directory')
     parser.add_argument('-mean', type=float, nargs='+',
-                        default=[0.485, 0.456, 0.406],
-                        help='Mean of the dataset')
+                        default=[0.485,0.456,0.406], help='Mean')
     parser.add_argument('-std', type=float, nargs='+',
-                        default=[0.229, 0.224, 0.225],
-                        help='Standard deviation of the dataset')
-    parser.add_argument('-batch_size', type=int, default=32,
-                        help='The batch size of the training data')
-    parser.add_argument('-epochs', type=int, default=7,
-                        help='Number of training epochs')
-    parser.add_argument('-device', type=str, default='cpu',
-                        choices=['cpu', 'cuda'],
-                        help='The device on which to do the training on')
-    parser.add_argument('-save_path', type=str, default='default',
-                        help='The file path where the classifier is saved')
+                        default=[0.229,0.224,0.225], help='Standard deviation')
+    parser.add_argument('-bs', type=int, default=32, help='Batch size')
+    parser.add_argument('-ep', type=int, default=7, help='Training epochs')
+    parser.add_argument('-dev', type=str, default='cpu', choices=['cpu','cuda'],
+                        help='Device')
+    parser.add_argument('-save', type=str, default='default', help='Save path')
     args = parser.parse_args()
 
-    train_dir = args.data_dir + '/train'
-    valid_dir = args.data_dir + '/valid'
-    test_dir = args.data_dir + '/test'
+    train_dir = args.dir + '/train'
+    valid_dir = args.dir + '/valid'
+    test_dir = args.dir + '/test'
     output_size = folder_count(train_dir)
 
     datasets, dataloaders = data_preprocess(train_dir, valid_dir, test_dir,
-                                            args.mean, args.std,
-                                            args.batch_size)
-    classifier = img_classifier(args.hidden_sizes, output_size,
-                                datasets['train'].class_to_idx,
-                                args.feature_net, args.dropout_prob,
-                                args.learn_rate)
-    train_classifer(classifier, dataloaders, args.device, args.epochs)
-    test_classifier(classifier, dataloaders, args.device)
-    save_classifier(classifier, args.save_path)
+                                            args.mean, args.std, args.bs)
+    classifier = img_classifier(args.hidden, output_size,
+                                datasets['train'].class_to_idx, args.cnn,
+                                args.dp, args.lr)
+    train_classifer(classifier, dataloaders, args.dev, args.ep)
+    test_classifier(classifier, dataloaders, args.dev)
+    save_classifier(classifier, args.save)
 
 if (__name__ == "__main__"):
     main();
