@@ -68,16 +68,17 @@ def predict(image, classifier, device, topk):
 
 
 def show_prediction(img_path, probs, cats, cat_to_name_path):
-    print('Predictions for {}:'.format(img_path))
-
+    print('\nPredictions for {}:'.format(img_path))
+    print('Prob. - Category')
+    
     if cat_to_name_path == None:
         for prob, cat in zip(probs, cats):
-            print('{:30} : {:.3f}'.format(cat, prob))
+            print('{:.3f} - {}'.format(prob, cat))
     else:
         with open(cat_to_name_path, 'r') as file:
             cat_to_name = json.load(file)
         for prob, cat in zip(probs, cats):
-            print('{:30} : {:.3f}'.format(cat_to_name[cat], prob))
+            print('{:.3f} - {}'.format(prob, cat_to_name[cat]))
 
 
 def main():
